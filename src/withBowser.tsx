@@ -1,18 +1,26 @@
 import * as React from "react";
-import hoistNonReactStatic from "hoist-non-react-statics";
+import hoistNonReactStatic = require("hoist-non-react-statics");
 import * as PropTypes from "prop-types";
+import { IBowser } from "bowser";
 
-const withBowser = Component => {
-  class Enhance extends React.Component<{}> {
+export interface WithBowser {
+  bowser: IBowser;
+}
+
+const withBowser = <P extends WithBowser>(
+  Component: React.ComponentClass<P> | React.StatelessComponent<P>
+) => {
+  const result = class Enhance extends React.Component<{}> {
     static contextTypes = { bowser: PropTypes.object };
-    static displayName = `withBowser(${Component.displayName ||
-      Component.name})`;
+    static displayName = `withBowser(${Component.displayName})`;
 
     render() {
       return <Component {...this.props} bowser={this.context.bowser} />;
     }
-  }
-  hoistNonReactStatic(Enhance, Component);
+  };
+  hoistNonReactStatic(result, Component);
 
-  return Enhance;
+  return result;
 };
+
+export default withBowser;
